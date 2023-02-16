@@ -2,23 +2,33 @@ import datetime
 import time
 import rfc3339
 import pytz
+import logging
 from paho.mqtt import client as mqtt_client
 
 broker_ip = "192.168.100.161"
+# broker_ip = "172.26.24.61"
 broker_port = 1883
 topic = "test/test1/test11"
 
+broker_user = "testbed"
+broker_passwd = "1234"
+
+logging.basicConfig(level=logging.WARNING)
+_logger = logging.getLogger()
+
 
 def connect_mqtt():
+
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
-            print("Connect to broker successful!")
+            _logger.warning("Connect to broker successful!")
         else:
-            print("Connect to broker failed, return code: %d\n", rc)
+            _logger.warning("Connect to broker failed, return code: %d\n", rc)
 
     client = mqtt_client.Client()
     client.on_connect = on_connect
     client.connect(broker_ip, broker_port)
+    # client.username_pw_set(broker_user, broker_passwd)
     return client
 
 
@@ -30,20 +40,23 @@ def publish(client: mqtt_client.Client):
                                                   utc=False,
                                                   use_system_timezone=False)
         msg = f"No. {msg_count}, time: {time_msg_str}"
-        res = client.publish(topic, msg)
+        res = client.publish(topic, msg, qos=2)
         status = res[0]
         if status == 0:
-            print("send {} to topic {} successfully".format(msg, topic))
+            _logger.warning("send {} to topic {} successfully".format(
+                msg, topic))
         else:
-            print("send {} to topic {} fail".format(msg, topic))
+            _logger.warning("send {} to topic {} fail".format(msg, topic))
         msg_count += 1
-        time.sleep(1)
+        time.sleep(0.25)
 
 
 def run():
     client = connect_mqtt()
     client.loop_start()
     publish(client)
+    client.loop_stop()
+    client.disconnect()
 
 
 if __name__ == "__main__":
