@@ -35,8 +35,9 @@ def connect_mqtt() -> mqtt_client.Client:
 def subscribe(client: mqtt_client.Client):
 
     def on_message(client, userdata, msg):
+        infomation = msg.payload.decode().split("|")[0]
         _logger.warning("Receive [{}] from topic {}".format(
-            msg.payload.decode(), msg.topic))
+            infomation, msg.topic))
 
     client.subscribe(topic, qos=2)
     client.on_message = on_message

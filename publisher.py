@@ -39,12 +39,15 @@ def publish(client: mqtt_client.Client):
         time_msg_str = rfc3339.format_microsecond(time_msg,
                                                   utc=False,
                                                   use_system_timezone=False)
-        msg = f"No. {msg_count}, time: {time_msg_str}"
+        data = genData(2)
+        msg = f"No. {msg_count}, time: {time_msg_str}|{data}"
+        print("Message length is: {}".format(len(msg)))
         res = client.publish(topic, msg, qos=2)
         status = res[0]
         if status == 0:
+            infomation = msg.split("|")[0]
             _logger.warning("send {} to topic {} successfully".format(
-                msg, topic))
+                infomation, topic))
         else:
             _logger.warning("send {} to topic {} fail".format(msg, topic))
         msg_count += 1
@@ -57,6 +60,11 @@ def run():
     publish(client)
     client.loop_stop()
     client.disconnect()
+
+
+def genData(n):
+    base = "a"
+    return base * n
 
 
 if __name__ == "__main__":
