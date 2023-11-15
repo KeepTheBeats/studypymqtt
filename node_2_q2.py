@@ -38,7 +38,7 @@ passwd = "1234"
 
 
 #Function for connecting the broker
-def connect_mqtt() -> mqtt_client:
+def connect_mqtt() -> mqtt_client.Client:
 
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
